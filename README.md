@@ -1,17 +1,18 @@
 # Study Reminder
 
-A web application that helps students manage their assignments and deadlines.
+A web application that helps students manage their assignments and deadlines with a convenient weekly calendar view.
 
 ## Description
 
 Study Reminder helps students:
+- Register and log in with personal accounts
 - Add tasks with deadlines
-- View list of all tasks
-- AI-powered smart task prioritization
+- View tasks in a weekly calendar layout
+- Navigate between weeks (previous/next)
 - Mark tasks as completed
 - Delete tasks
 - Track overdue and upcoming deadlines
-- Visual deadline indicators
+- Visual deadline indicators with color coding
 
 ## Product Context
 
@@ -22,23 +23,29 @@ University and college students.
 Students often forget about deadlines and struggle to organize their academic tasks, especially when they have many assignments.
 
 ### Solution
-A web application that allows convenient task storage, deadline tracking, and AI-powered smart prioritization to help students focus on what matters most.
+A web application with personal accounts that provides convenient task storage, deadline tracking, and a weekly calendar view to help students visualize their workload and stay organized.
 
 ## Features
 
 ### Implemented Features
+- ✅ User registration and authentication
 - ✅ Add task with deadline
-- ✅ View list of all tasks
-- ✅ Visual deadline indicators (color coding)
-- ✅ AI-powered smart prioritization
+- ✅ Weekly calendar view with navigation
+- ✅ Visual deadline indicators (color coding):
+  - **Overdue** — past deadline
+  - **Urgent** — 1 day or less remaining
+  - **Soon** — 3 days or less remaining
+  - **Normal** — more than 3 days remaining
 - ✅ Mark task as completed
 - ✅ Delete task
+- ✅ View active and completed tasks separately
 
 ### Planned Features
-- ⏳ User registration and authentication
+- ⏳ AI-powered smart task prioritization
 - ⏳ Task categorization by subject
 - ⏳ Email notifications about deadlines
 - ⏳ Automatic reminders
+- ⏳ Task planning page
 
 ## Usage
 
@@ -96,15 +103,26 @@ docker-compose up --build -d
 
 ```
 study-reminder-web/
-├── app.py              # Main application code
+├── app.py              # Main application code (Flask app, routes, database)
 ├── requirements.txt    # Python dependencies
+├── tasks.db            # SQLite database (auto-created)
 ├── Dockerfile          # Docker configuration
 ├── docker-compose.yml  # Docker Compose configuration
 ├── templates/
-│   └── index.html      # HTML template
+│   ├── index.html      # Main page with weekly calendar view
+│   ├── login.html      # Login page
+│   ├── register.html   # Registration page
+│   └── plan.html       # Planning page (planned)
 ├── README.md           # Documentation
 └── LICENSE             # MIT License
 ```
+
+## Database Schema
+
+The application uses SQLite with the following tables:
+
+- **users** - User accounts (id, username, password hash, created_at)
+- **tasks** - Tasks with deadlines (id, user_id, description, deadline, created_at, completed)
 
 ## License
 
