@@ -2,17 +2,10 @@
 
 A web application that helps students manage their assignments and deadlines with a convenient weekly calendar view.
 
-## Description
+## Demo
 
-Study Reminder helps students:
-- Register and log in with personal accounts
-- Add tasks with deadlines
-- View tasks in a weekly calendar layout
-- Navigate between weeks (previous/next)
-- Mark tasks as completed
-- Delete tasks
-- Track overdue and upcoming deadlines
-- Visual deadline indicators with color coding
+![Login Page](demo/login.png)
+![Weekly Calendar View](demo/weekly-view.png)
 
 ## Product Context
 
@@ -71,12 +64,15 @@ Open http://localhost:5000
 ### OS Requirements
 - Ubuntu 24.04
 
-### Installation
+### Prerequisites
+- Docker and Docker Compose
+
+### Step-by-step Deployment
 
 1. Install Docker:
 ```bash
 sudo apt update
-sudo apt install docker.io docker-compose
+sudo apt install docker.io docker-compose -y
 ```
 
 2. Clone the project:
@@ -90,7 +86,7 @@ cd study-reminder-web
 docker-compose up --build -d
 ```
 
-4. Open in browser: http://your-ip:5000
+4. Open in browser: `http://<your-ip>:5000`
 
 ## Technology Stack
 
@@ -113,16 +109,10 @@ study-reminder-web/
 │   ├── login.html      # Login page
 │   ├── register.html   # Registration page
 │   └── plan.html       # Planning page (planned)
+├── demo/               # Screenshots for README
 ├── README.md           # Documentation
 └── LICENSE             # MIT License
 ```
-
-## Database Schema
-
-The application uses SQLite with the following tables:
-
-- **users** - User accounts (id, username, password hash, created_at)
-- **tasks** - Tasks with deadlines (id, user_id, description, deadline, created_at, completed)
 
 ## License
 
