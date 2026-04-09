@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Reminder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: calc(100vh - 40px);
+        }
+        .main-content {
+            width: 100%;
+            max-width: 1000px;
+        }
+        .sidebar-left {
+            width: 300px;
+            flex-shrink: 0;
+            padding-top: 230px;
+        }
+        .sidebar-right {
+            display: none;
+        }
+        .all-tasks-bottom {
+            width: 100%;
+            max-width: 1000px;
+            margin-top: 20px;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .add-form {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .add-form input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .add-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .add-form button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .add-form button:hover {
+            background: #5568d3;
+        }
+        
+        .week-container {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+        .day-card {
+            flex: 1;
+            min-width: 100px;
+            padding: 15px 10px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .day-card:hover {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+        .day-card.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+        .day-card.today {
+            border-color: #764ba2;
+            border-width: 3px;
+        }
+        .day-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .day-date {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .day-tasks-count {
+            margin-top: 8px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .tasks-section {
+            display: none;
+        }
+        .tasks-section.visible {
+            display: block;
+        }
+        .tasks-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .selected-date-title {
+            color: #333;
+            font-size: 1.2rem;
+        }
+        
+        .task-list {
+            list-style: none;
+        }
+        .task {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+        .task:last-child {
+            border-bottom: none;
+        }
+        .task:hover {
+            background: #f9f9f9;
+        }
+        .task.completed {
+            opacity: 0.6;
+        }
+        .task.completed .task-desc {
+            text-decoration: line-through;
+        }
+        .task-info {
+            flex: 1;
+        }
+        .task-desc {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .task-deadline {
+            font-size: 14px;
+            color: #666;
+        }
+        .task-deadline.overdue {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .task-deadline.urgent {
+            color: #e67e22;
+        }
+        .task-deadline.soon {
+            color: #f39c12;
+        }
+        .task-deadline.normal {
+            color: #27ae60;
+        }
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-complete {
+            background: #27ae60;
+            color: white;
+        }
+        .btn-complete:hover {
+            background: #219a52;
+        }
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-delete:hover {
+            background: #c0392b;
+        }
+        .empty {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+        .flash.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .flash {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: opacity 0.5s ease;
+        }
+        .flash.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            flex: 1;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .stat-num {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        .btn-plan {
+            display: none;
+        }
+        .section-title {
+            margin: 20px 0 10px 0;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        .week-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .week-nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 18px;
+            transition: background 0.3s;
+        }
+        .week-nav-btn:hover {
+            background: #5568d3;
+        }
+        .week-title {
+            color: #333;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('.flash').forEach(flash => {
+                flash.style.opacity = '0';
+                setTimeout(() => flash.remove(), 500);
+            });
+        }, 3000);
+        
+        function selectDay(dateStr, element) {
+            document.querySelectorAll('.day-card').forEach(card => card.classList.remove('active'));
+            element.classList.add('active');
+            
+            document.querySelectorAll('.tasks-section').forEach(section => {
+                section.classList.remove('visible');
+            });
+            
+            const selectedSection = document.getElementById('tasks-' + dateStr);
+            if (selectedSection) {
+                selectedSection.classList.add('visible');
+            }
+        }
+    </script>
+</head>
+    <body>
+        <div class="container">
+        <div class="main-content">
+        <h1>📚 Study Reminder
+            <a href="{{ url_for('logout') }}" style="display: inline-block; font-size: 14px; color: white; text-decoration: none; margin-left: 20px; padding: 8px 16px; background: rgba(255,255,255,0.2); border-radius: 20px; transition: background 0.3s;">🚪 Logout</a>
+        </h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-num">{{ active_tasks|length }}</div>
+                <div class="stat-label">Active Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num">{{ completed_tasks|length }}</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <form class="add-form" action="/add" method="POST">
+                <input type="text" name="description" placeholder="Task description" required>
+                <input type="date" name="deadline" required>
+                <button type="submit">Add</button>
+            </form>
+        </div>
+        
+        <div class="card">
+            <div class="week-nav">
+                <a href="{{ url_for('index', week_offset=week_offset - 1) }}" class="week-nav-btn">←</a>
+                <div class="week-title">📅 
+                    {% if week_offset == 0 %}
+                        Current Week
+                    {% elif week_offset == 1 %}
+                        Next Week
+                    {% elif week_offset == -1 %}
+                        Previous Week
+                    {% else %}
+                        {{ week_days[0].date.strftime('%d.%m') }} - {{ week_days[6].date.strftime('%d.%m.%Y') }}
+                    {% endif %}
+                </div>
+                <a href="{{ url_for('index', week_offset=week_offset + 1) }}" class="week-nav-btn">→</a>
+            </div>
+            {% if week_offset != 0 %}
+            <div style="text-align: center; margin-top: 10px;">
+                <a href="{{ url_for('index', week_offset=0) }}" class="week-nav-btn" style="font-size: 14px;">Today</a>
+            </div>
+            {% endif %}
+            <div class="week-container">
+                {% for day in week_days %}
+                    {% set day_names = {'Monday': 'Mon', 'Tuesday': 'Tue', 'Wednesday': 'Wed', 'Thursday': 'Thu', 'Friday': 'Fri', 'Saturday': 'Sat', 'Sunday': 'Sun'} %}
+                    {% set date_key = day.date_str %}
+                    {% set active_count = tasks_by_date[date_key]['active']|length if date_key in tasks_by_date else 0 %}
+                    {% set completed_count = tasks_by_date[date_key]['completed']|length if date_key in tasks_by_date else 0 %}
+                    {% set total_count = active_count + completed_count %}
+                    {% set is_today = (day.date_str == today_str) %}
+                    <div class="day-card {% if is_today %}today{% endif %}" 
+                         onclick="selectDay('{{ day.date_str }}', this)">
+                        <div class="day-name">{{ day_names[day.day_name] }}</div>
+                        <div class="day-date">{{ day.day_num }}</div>
+                        {% if total_count > 0 %}
+                            <div class="day-tasks-count">{{ total_count }} tasks</div>
+                        {% endif %}
+            </div>
+        {% endfor %}
+        </div>
+        
+        {% for day in week_days %}
+            {% set date_key = day.date_str %}
+            {% set day_names = {'Monday': 'Monday', 'Tuesday': 'Tuesday', 'Wednesday': 'Wednesday', 'Thursday': 'Thursday', 'Friday': 'Friday', 'Saturday': 'Saturday', 'Sunday': 'Sunday'} %}
+            {% set active_tasks_day = tasks_by_date[date_key]['active'] if date_key in tasks_by_date else [] %}
+            {% set completed_tasks_day = tasks_by_date[date_key]['completed'] if date_key in tasks_by_date else [] %}
+            
+            <div id="tasks-{{ date_key }}" class="card tasks-section">
+                <div class="tasks-header">
+                    <div class="selected-date-title">{{ day_names[day.day_name] }}, {{ day.date.strftime('%d.%m.%Y') }}</div>
+                </div>
+                
+                {% if active_tasks_day|length > 0 %}
+                    <h3 class="section-title">📋 Active Tasks ({{ active_tasks_day|length }})</h3>
+                    <ul class="task-list">
+                        {% for task in active_tasks_day %}
+                            <li class="task">
+                                <div class="task-info">
+                                    <div class="task-desc">{{ task.description }}</div>
+                                    <div class="task-deadline {{ task.status }}">
+                                        {% if task.days_left < 0 %}
+                                            ⚠️ Overdue ({{ -task.days_left }} d.)
+                                        {% elif task.days_left == 0 %}
+                                            🔴 Today
+                                        {% elif task.days_left == 1 %}
+                                            🟡 Tomorrow
+                                        {% else %}
+                                            🟢 {{ task.days_left }} d.
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="task-actions">
+                                    <a href="/complete/{{ task.id }}?week_offset={{ week_offset }}" class="btn btn-complete">✓</a>
+                                    <a href="/delete/{{ task.id }}?week_offset={{ week_offset }}" class="btn btn-delete">✕</a>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
+                {% if completed_tasks_day|length > 0 %}
+                    <h3 class="section-title">✅ Completed ({{ completed_tasks_day|length }})</h3>
+                    <ul class="task-list">
+                        {% for task in completed_tasks_day %}
+                            <li class="task completed">
+                                <div class="task-info">
+                                    <div class="task-desc">{{ task.description }}</div>
+                                    <div class="task-deadline">{{ task.deadline }}</div>
+                                </div>
+                                <div class="task-actions">
+                                    <a href="/delete/{{ task.id }}?week_offset={{ week_offset }}" class="btn btn-delete">✕</a>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
+                {% if active_tasks_day|length == 0 and completed_tasks_day|length == 0 %}
+                    <div class="empty">📭 No tasks for this day</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        </div>
+        
+        <div class="sidebar-right">
+            <div class="card">
+                <h2 style="margin-bottom: 15px; color: #27ae60; font-size: 1.1rem;">✅ Completed ({{ completed_tasks|length }})</h2>
+                {% if completed_tasks|length > 0 %}
+                    <ul class="task-list">
+                        {% for task in completed_tasks %}
+                            <li class="task completed">
+                                <div class="task-info">
+                                    <div class="task-desc">{{ task.description }}</div>
+                                    <div class="task-deadline">{{ task.deadline }}</div>
+                                </div>
+                                <div class="task-actions">
+                                    <a href="/delete/{{ task.id }}?week_offset={{ week_offset }}" class="btn btn-delete">✕</a>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="empty">No completed tasks</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="all-tasks-bottom">
+            <div class="card">
+                <h2 style="margin-bottom: 15px; color: #667eea; font-size: 1.1rem;">📝 All Tasks ({{ active_tasks|length }})</h2>
+                {% if active_tasks|length > 0 %}
+                    <ul class="task-list">
+                        {% for task in active_tasks %}
+                            <li class="task">
+                                <div class="task-info">
+                                    <div class="task-desc">{{ task.description }}</div>
+                                    <div class="task-deadline {{ task.status }}">
+                                        {% if task.days_left < 0 %}
+                                            ⚠️ {{ -task.days_left }} d.
+                                        {% elif task.days_left == 0 %}
+                                            🔴 Today
+                                        {% else %}
+                                            🟢 {{ task.days_left }} d.
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="task-actions">
+                                    <a href="/complete/{{ task.id }}?week_offset={{ week_offset }}" class="btn btn-complete">✓</a>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="empty">No active tasks</div>
+                {% endif %}
+            </div>
+            
+            <div class="card" style="margin-top: 20px;">
+                <h2 style="margin-bottom: 15px; color: #27ae60; font-size: 1.1rem;">✅ Completed ({{ completed_tasks|length }})</h2>
+                {% if completed_tasks|length > 0 %}
+                    <ul class="task-list">
+                        {% for task in completed_tasks %}
+                            <li class="task completed">
+                                <div class="task-info">
+                                    <div class="task-desc">{{ task.description }}</div>
+                                    <div class="task-deadline">{{ task.deadline }}</div>
+                                </div>
+                                <div class="task-actions">
+                                    <a href="/delete/{{ task.id }}?week_offset={{ week_offset }}" class="btn btn-delete">✕</a>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="empty">No completed tasks</div>
+                {% endif %}
+            </div>
+        </div>
+    </body>
+</html>
