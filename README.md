@@ -86,7 +86,7 @@ cd study-reminder-web
 docker-compose up --build -d
 ```
 
-4. Open in browser: `http://<your-ip>:5000`
+4. Open in browser: `http://10.93.24.254:5000`
 
 ## Technology Stack
 
